@@ -9,7 +9,6 @@
     "prisma:generate": "prisma generate",
     "build":"prisma generate --schema=prisma/schema.prisma",
   "postinstall": "prisma generate --schema=backend/prisma/schema.prisma"
-}
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",
