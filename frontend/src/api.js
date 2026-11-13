@@ -1,4 +1,4 @@
-const API = "http://localhost:5000/api";
+const API = import.meta.env.VITE_API_URL || "https://roviq-store-4ytw.vercel.app/api";
 
 export function getAdminToken() {
   return localStorage.getItem("admin_token");
