@@ -685,7 +685,9 @@ function ProductModal({ product, onClose, onSave, busy }) {
   const update = (k, v) => setForm(old => ({ ...old, [k]: v }));
   function submit(e) {
     e.preventDefault();
-    const split = v => Array.isArray(v) ? v : String(v || "").split(/[\n,]+/).map(x => x.trim()).filter(Boolean);
+    const split = v => Array.isArray(v)
+  ? v
+  : String(v || "").split(/\n+/).map(x => x.trim()).filter(Boolean);
     const imagesList = split(form.images);
     if (imagesList.length === 0) { alert("Please enter at least one product image URL."); return; }
     onSave({
