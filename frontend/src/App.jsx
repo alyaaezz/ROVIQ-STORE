@@ -670,7 +670,95 @@ function OrderTable({ orders = [], onChangeStatus }) {
   );
 }
 
-function AdminHome(){const ready=useAdminGuard(),[data,setData]=useState(null),[error,setError]=useState("");async function load(){setError("");setData(await api("/orders/dashboard"));}useEffect(()=>{if(ready)load().catch(e=>setError(e.message));},[ready]);if(!ready)return <div className="loading">Loading...</div>;return <AdminLayout active="overview"><div className="admin-heading"><div><p className="eyebrow">STORE OVERVIEW</p><h1>DASHBOARD.</h1></div><div><button className="button outline" onClick={()=>load().catch(e=>setError(e.message))}>REFRESH</button> <Link to="/" className="text-link">VIEW STORE</Link></div></div>{error&&<p className="error">{error}</p>}{data&&<><div className="stats"><div><span>Active products</span><b>{data.products}</b></div><div><span>Total orders</span><b>{data.orders}</b></div><div><span>Total sales</span><b>{money(data.totalSales ?? data.verifiedRevenue)}</b></div></div><h2 className="admin-subtitle">RECENT ORDERS</h2><OrderTable orders={data.recentOrders}/></>}</AdminLayout>;}
+function AdminHome() {
+  const ready = useAdminGuard();
+  const [data, setData] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [error, setError] = useState("");
+
+  async function load() {
+    setError("");
+
+    try {
+      const [dashboardData, ordersData] = await Promise.all([
+        api("/orders/dashboard"),
+        api("/orders")
+      ]);
+
+      setData(dashboardData);
+      setOrders(ordersData);
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
+  useEffect(() => {
+    if (ready) {
+      load();
+    }
+  }, [ready]);
+
+  const approvedStatuses = ["CONFIRMED", "PROCESSING", "SHIPPED"];
+
+  const totalSales = orders
+    .filter(order => approvedStatuses.includes(order.status))
+    .reduce((sum, order) => sum + Number(order.total || 0), 0);
+
+  if (!ready) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  return (
+    <AdminLayout active="overview">
+      <div className="admin-heading">
+        <div>
+          <p className="eyebrow">STORE OVERVIEW</p>
+          <h1>DASHBOARD.</h1>
+        </div>
+
+        <div>
+          <button
+            className="button outline"
+            onClick={() => load()}
+          >
+            REFRESH
+          </button>
+
+          <Link to="/" className="text-link">
+            VIEW STORE
+          </Link>
+        </div>
+      </div>
+
+      {error && <p className="error">{error}</p>}
+
+      {data && (
+        <>
+          <div className="stats">
+            <div>
+              <span>Active products</span>
+              <b>{data.products}</b>
+            </div>
+
+            <div>
+              <span>Total orders</span>
+              <b>{data.orders}</b>
+            </div>
+
+            <div>
+              <span>Total sales</span>
+              <b>{money(totalSales)}</b>
+            </div>
+          </div>
+
+          <h2 className="admin-subtitle">RECENT ORDERS</h2>
+
+          <OrderTable orders={data.recentOrders} />
+        </>
+      )}
+    </AdminLayout>
+  );
+}
 
 function ProductModal({ product, onClose, onSave, busy }) {
   const [form, setForm] = useState(() => product ? {
