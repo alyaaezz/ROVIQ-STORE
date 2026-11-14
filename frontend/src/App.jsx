@@ -683,22 +683,31 @@ function ProductModal({ product, onClose, onSave, busy }) {
     colors: "Black, Grey", sizes: "S, M, L, XL", active: true, showStock: false, images: ""
   });
   const update = (k, v) => setForm(old => ({ ...old, [k]: v }));
-  function submit(e) {
-    e.preventDefault();
-    const split = v => Array.isArray(v)
-  ? v
-  : String(v || "").split(/\n+/).map(x => x.trim()).filter(Boolean);
-    const imagesList = split(form.images);
-    if (imagesList.length === 0) { alert("Please enter at least one product image URL."); return; }
-    onSave({
-      ...form,
-      price: Number(form.price) || 0,
-      stock: Number(form.stock) || 0,
-      salePrice: form.salePrice === "" || form.salePrice == null ? null : Number(form.salePrice),
-      colors: split(form.colors), sizes: split(form.sizes), images: imagesList,
-      active: Boolean(form.active), showStock: Boolean(form.showStock)
-    });
+function submit(e) {
+  e.preventDefault();
+  const splitImages = v => Array.isArray(v)
+    ? v
+    : String(v || "").split(/\n+/).map(x => x.trim()).filter(Boolean);
+  const splitOptions = v => Array.isArray(v)
+    ? v
+    : String(v || "").split(/[,\n]+/).map(x => x.trim()).filter(Boolean);
+  const imagesList = splitImages(form.images);
+  if (imagesList.length === 0) {
+    alert("Please enter at least one product image URL.");
+    return;
   }
+  onSave({
+    ...form,
+    price: Number(form.price) || 0,
+    stock: Number(form.stock) || 0,
+    salePrice: form.salePrice === "" || form.salePrice == null ? null : Number(form.salePrice),
+    colors: splitOptions(form.colors),
+    sizes: splitOptions(form.sizes),
+    images: imagesList,
+    active: Boolean(form.active),
+    showStock: Boolean(form.showStock)
+  });
+}
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 99999 }}>
       <div style={{ background: "#fefdfa", padding: 30, borderRadius: 12, width: "90%", maxWidth: 650, maxHeight: "90vh", overflowY: "auto", border: "1px solid #d4c5b9", color: "#2c2c2c" }}>
