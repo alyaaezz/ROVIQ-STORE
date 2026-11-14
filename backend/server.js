@@ -69,4 +69,3 @@ if (require.main === module) {
     console.log(`API running on port ${port}`); // تصحيح علامات التنصيص إلى Backticks
   });
 }
-export default app; // أو module.exports = app; حسب طريقة الاستيراد في ملفك
